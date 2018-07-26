@@ -100,5 +100,41 @@ def fit_cylinder_3(X, o, d):
 
     return center_3d,r
 
-def cylinder_surface(start, end, N, o, d, r):
-    pass
+def cylinder_surface(start, end_, N, o, d, r):
+    d_    = d/np.sqrt(np.sum(d**2))
+
+    q1,q2 = perpendicular_plane(d)
+
+    x = np.linspace(-1,1,N)
+    z = np.linspace(start,end_,N)
+
+    xm,zm = np.meshgrid(x,z)
+    ym = np.sqrt(1-xm**2)
+
+    X = np.concatenate((xm,np.fliplr(xm)),axis=1)
+    Y = np.concatenate((ym,-ym),axis=1)
+    Z = np.concatenate((zm,zm),axis=1)
+
+    Nm = X.shape[0]
+
+    xv = np.ravel(X)
+    yv = np.ravel(Y)
+    zv = np.ravel(Z)
+
+    n = len(xv)
+
+    V = np.zeros((n,3))
+    V[:,0] = xv
+    V[:,1] = yv
+    V[:,2] = zv
+
+    Q = np.zeros((3,3))
+    Q[0,:] = q1
+    Q[1,:] = q2
+    Q[2,:] = d
+
+    P = V.dot(Q) + o
+
+    Ps = P.reshape((Nm,2*Nm,3))
+
+    return Ps

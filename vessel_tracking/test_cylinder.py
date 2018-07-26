@@ -7,12 +7,12 @@ start = -1
 end_  = 1
 N     = 20
 
-d = np.array([1,1,1])
+d = np.array([1,1,-1])
 d = d/np.sqrt(np.sum(d**2))
 
 q1,q2 = geometry.perpendicular_plane(d)
 r = 2
-o = np.array([2,2,2])
+o = np.array([2,2,-2])
 
 x = np.linspace(-1,1,N)
 z = np.linspace(start,end_,N)
@@ -30,27 +30,7 @@ ax.plot_surface(X,Y,Z)
 plt.show()
 plt.close()
 
-Nm = X.shape[0]
-
-xv = np.ravel(X)
-yv = np.ravel(Y)
-zv = np.ravel(Z)
-
-n = len(xv)
-
-V = np.zeros((n,3))
-V[:,0] = xv
-V[:,1] = yv
-V[:,2] = zv
-
-Q = np.zeros((3,3))
-Q[0,:] = q1
-Q[1,:] = q2
-Q[2,:] = d
-
-P = V.dot(Q) + o
-
-Ps = P.reshape((Nm,2*Nm,3))
+Ps = geometry.cylinder_surface(-1,1,20, o, d, r)
 
 fig = plt.figure()
 ax = fig.add_subplot(111, projection='3d')
