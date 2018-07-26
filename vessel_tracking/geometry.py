@@ -99,3 +99,6 @@ def fit_cylinder_3(X, o, d):
     center_3d = o + center[0]*q1 + center[1]*q2
 
     return center_3d,r
+
+def cylinder_surface(start, end, N, o, d, r):
+    pass
