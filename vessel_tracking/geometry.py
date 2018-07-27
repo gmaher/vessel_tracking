@@ -129,8 +129,8 @@ def cylinder_surface(start, end_, N, o, d, r):
     V[:,2] = zv
 
     Q = np.zeros((3,3))
-    Q[0,:] = q1
-    Q[1,:] = q2
+    Q[0,:] = r*q1
+    Q[1,:] = r*q2
     Q[2,:] = d
 
     P = V.dot(Q) + o
