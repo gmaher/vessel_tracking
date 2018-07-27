@@ -1,4 +1,8 @@
-import geometry
+import sys
+import os
+sys.path.append(os.path.abspath('..'))
+
+from vessel_tracking import geometry
 import numpy as np
 
 v1 = np.array([1,0,0])
