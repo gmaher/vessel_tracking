@@ -138,3 +138,14 @@ def cylinder_surface(start, end_, N, o, d, r):
     Ps = P.reshape((Nm,2*Nm,3))
 
     return Ps
+
+def ray(o,d,step_size,n_steps,bidirectional=True):
+    ndim = len(d)
+    if bidirectional:
+        s = np.arange(-n_steps,n_steps).reshape((2*n_steps,1))
+    else:
+        s = np.arange(0,n_steps).reshape((n_steps,1))
+
+    p = o+step_size*s.dot(d.reshape((1,ndim)))
+
+    return p
