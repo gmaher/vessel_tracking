@@ -1,5 +1,26 @@
-from vessel_tracking import geometry
+from vessel_tracking import geometry, sample, signal
 import numpy as np
+
+def sample_surface_points(I_int, c, step_size, Nr=1, Np=50):
+    directions = sample.sphere_sample(Nr)
+    surface_points = []
+
+    for i in range(Nr):
+        d = directions[i]
+        ray = geometry.ray(c,d,step_size,Np, bidirectional=False)
+
+        intensities = I_int(ray)
+
+        grad        = signal.central_difference(intensities)
+
+        ind = np.argmin(grad)
+
+        surface_points.append(ray[ind])
+
+
+    surface_points = np.array(surface_points)
+
+    return surface_points
 
 def ransac_cylinder(points, o, d, r, p_in=0.7, max_deviation=0.5,
     inlier_factor=0.1, N_iter=100):

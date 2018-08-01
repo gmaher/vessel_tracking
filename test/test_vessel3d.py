@@ -7,7 +7,8 @@ import matplotlib.pyplot as plt
 
 from scipy.interpolate import LinearNDInterpolator
 
-from vessel_tracking import geometry, signal, sample
+from vessel_tracking import geometry, signal, sample, ransac
+
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
 from matplotlib import cm
@@ -54,30 +55,9 @@ points = np.array(points)
 I_int = LinearNDInterpolator(points, np.ravel(I))
 
 #ray casting
-directions = sample.sphere_sample(Nr)
 step_size  = np.sqrt(10*RADIUS)/Np
-surface_points = []
 
-for i in range(Nr):
-    d = directions[i]
-    ray = geometry.ray(c0,d,step_size,Np, bidirectional=False)
-
-    intensities = I_int(ray)
-
-    grad        = signal.central_difference(intensities)
-
-    plt.figure()
-    plt.plot(intensities, color='b')
-    plt.plot(grad,color='r')
-    plt.savefig('./figures/ray_{}.png'.format(i), dpi=100)
-    plt.close()
-
-    ind = np.argmin(grad)
-
-    surface_points.append(ray[ind])
-
-
-surface_points = np.array(surface_points)
+surface_points = ransac.sample_surface_points(I_int, c0, step_size, Nr, Np)
 
 fig = plt.figure()
 ax = fig.add_subplot(111, projection='3d')
