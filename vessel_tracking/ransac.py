@@ -9,7 +9,7 @@ def sample_surface_points(I_int, c, step_size, Nr=1, Np=50):
         d = directions[i]
         ray = geometry.ray(c,d,step_size,Np, bidirectional=False)
 
-        intensities = I_int(ray)
+        intensities = signal.smooth_n(I_int(ray), N=2)
 
         grad        = signal.central_difference(intensities)
 

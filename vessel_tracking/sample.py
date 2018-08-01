@@ -10,9 +10,10 @@ def sphere_sample(N=1, n=3):
     return x
 
 def sphere_sample_vec(d, N=1):
+    FACTOR = 2
     n = d.shape[0]
 
-    z = sphere_sample(N, n)
+    z = sphere_sample(int(FACTOR*N), n)
 
     length = np.sqrt(np.sum(d**2))
 
@@ -22,7 +23,7 @@ def sphere_sample_vec(d, N=1):
 
     angles = np.arccos(dots)
 
-    zipped = [(z[i], angles[i]) for i in range(N)]
+    zipped = [(z[i], angles[i]) for i in range(int(FACTOR*N))]
 
     zipped = sorted(zipped, key=lambda x: x[1])
 
