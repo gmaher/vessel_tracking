@@ -7,7 +7,10 @@ import matplotlib.pyplot as plt
 
 from scipy.interpolate import LinearNDInterpolator
 
-from vessel_tracking import geometry, signal
+from vessel_tracking import geometry, signal, sample
+import matplotlib.pyplot as plt
+from mpl_toolkits.mplot3d import Axes3D
+from matplotlib import cm
 
 def vessel(x,r):
     if np.sqrt(x[0]**2+x[1]**2)<=r:
@@ -15,10 +18,76 @@ def vessel(x,r):
     else:
         return 0
 
-N = 100
+Nr = 100
+Np = 50
+c0 = np.array([0,0,0])
+r0 = 1.0
+dt = np.array([0,0.1,0.9])
+dt = dt/np.sqrt(np.sum(dt**2))
+
+N = 40
 HEIGHT  = 5
 WIDTH   = 5
 DEPTH   = 5
 SPACING = HEIGHT*1.0/N
 
-RADIUS  = 1
+RADIUS  = 1.5
+
+x = np.linspace(-HEIGHT,HEIGHT,N)
+
+X,Y = np.meshgrid(x,x)
+
+I = np.zeros((N,N,N))
+points = []
+
+for i in range(N):
+    for j in range(N):
+        for k in range(N):
+            v = np.array([x[i], x[j], x[k]])
+
+            points.append(v.copy())
+
+            I[i,j,k] = vessel(v, RADIUS)
+
+points = np.array(points)
+
+I_int = LinearNDInterpolator(points, np.ravel(I))
+
+#ray casting
+directions = sample.sphere_sample(Nr)
+step_size  = np.sqrt(10*RADIUS)/Np
+surface_points = []
+
+for i in range(Nr):
+    d = directions[i]
+    ray = geometry.ray(c0,d,step_size,Np, bidirectional=False)
+
+    intensities = I_int(ray)
+
+    grad        = signal.central_difference(intensities)
+
+    plt.figure()
+    plt.plot(intensities, color='b')
+    plt.plot(grad,color='r')
+    plt.savefig('./figures/ray_{}.png'.format(i), dpi=100)
+    plt.close()
+
+    ind = np.argmin(grad)
+
+    surface_points.append(ray[ind])
+
+
+surface_points = np.array(surface_points)
+
+fig = plt.figure()
+ax = fig.add_subplot(111, projection='3d')
+
+ax.scatter(surface_points[:,0], surface_points[:,1],
+    surface_points[:,2], color='b')
+
+ax.contourf(X,Y,I[:,:,0], zdir='z', offest=0, cmap=cm.gray)
+ax.set_xlim(-HEIGHT,HEIGHT)
+ax.set_ylim(-HEIGHT,HEIGHT)
+ax.set_zlim(-HEIGHT,HEIGHT)
+plt.show()
+plt.close()
