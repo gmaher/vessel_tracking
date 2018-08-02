@@ -1,5 +1,5 @@
 import numpy as np
-
+from scipy import optimize
 def orth(v):
     """
     return vector orthogonal to v
@@ -65,6 +65,19 @@ def distance_in_plane(P,o,d):
 
     return np.sqrt(np.sum(X_plane**2,axis=1))
 
+def project_points_on_line(P,o,d):
+    """
+    args:
+        P - nx3 array
+    """
+
+    X = P-o
+    dots = np.sum(X*d,axis=1)
+    norm2 = np.sum(d*d)
+
+    coeffs = dots*1.0/norm2
+    return coeffs
+    
 def fit_circle_3(P):
     """
     fits a circle to 3 points in a plane (Beder 2006)
@@ -99,6 +112,25 @@ def fit_cylinder_3(X, o, d):
     center_3d = o + center[0]*q1 + center[1]*q2
 
     return center_3d,r
+
+def powell_cylinder_3(X, o, d, r, maxiter=50):
+    theta      = np.zeros((4))
+    theta[:3] = d.copy()
+    theta[3]   = r
+
+    f_cost = lambda theta: np.mean(
+    np.abs(
+        distance_in_plane(X,o,theta[:3])\
+        -theta[3]
+    )
+    )
+
+    opt = optimize.fmin_powell(f_cost, theta, maxiter=maxiter)
+
+    d = opt[:3]/np.sqrt(np.sum(opt[:3]**2))
+    r = opt[3]
+
+    return d,r
 
 def cylinder_surface(start, end_, N, o, d, r):
     d_    = d/np.sqrt(np.sum(d**2))

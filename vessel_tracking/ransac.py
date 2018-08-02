@@ -18,13 +18,6 @@ def sample_surface_points(I_int, c, step_size, Nr=1, Np=50):
 
         surface_points.append(ray[ind])
 
-        plt.figure()
-        plt.title("d={}".format(d))
-        plt.plot(np.sqrt(np.sum(ray**2,axis=1)),intensities, color='b')
-        plt.plot(np.sqrt(np.sum(ray**2,axis=1)),grad,color='r')
-        plt.savefig('./figures/{}.png'.format(i), dpi=100)
-        plt.close()
-
     surface_points = np.array(surface_points)
 
     return surface_points

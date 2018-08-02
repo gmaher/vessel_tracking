@@ -21,9 +21,33 @@ class RansacVesselTracker(VesselTracker):
         self.max_dev       = max_dev
         self.inlier_factor = inlier_factor
         self.step_size     = step_size
+        self.height_step   = 0.75
 
-    def get_path(self, d0, x0, r0):
+    def get_path(self, d0, x0, r0, h0):
         pass
+
+    def get_next_point(self, d0, x0, r0, h0):
+
+        x = x0 + self.height_step*h0*d0*1.0/2
+        d = d0
+        r = r0
+        h = h0
+
+        d,x,r,p,in_,out_ = self.get_ransac_cylinder(d,x,r)
+
+        d,r = geometry.powell_cylinder_3(in_,x,d,r,50)
+
+        coeff = geometry.project_points_on_line(in_, x, d)
+
+        coeff = sorted(coeff)
+
+        UP = int(0.75*len(coeff))
+        LOW = int(0.25*len(coeff))
+        h = coeff[UP]-coeff[LOW]
+
+        x = x+np.median(coeff)*d
+
+        return d,x,r,h,p,in_
 
     def get_ransac_cylinder(self, d0, x0, r0):
 
