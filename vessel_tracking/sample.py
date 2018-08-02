@@ -10,7 +10,7 @@ def sphere_sample(N=1, n=3):
     return x
 
 def sphere_sample_vec(d, N=1):
-    FACTOR = 2
+    FACTOR = 3
     n = d.shape[0]
 
     z = sphere_sample(int(FACTOR*N), n)
