@@ -12,7 +12,8 @@ class VesselTracker(object):
         pass
 
 class RansacVesselTracker(VesselTracker):
-    def set_params(self, Nr, Np, Nd, Nc, p_in, max_dev, inlier_factor, step_size):
+    def set_params(self, Nr, Np, Nd, Nc, p_in, max_dev, inlier_factor, step_size,
+        height_step=0.75, max_iter=20):
         self.Nr   = Nr
         self.Np   = Np
         self.Nd   = Nd
@@ -21,10 +22,30 @@ class RansacVesselTracker(VesselTracker):
         self.max_dev       = max_dev
         self.inlier_factor = inlier_factor
         self.step_size     = step_size
-        self.height_step   = 0.75
+        self.height_step   = height_step
+        self.max_iter      = max_iter
 
-    def get_path(self, d0, x0, r0, h0):
-        pass
+    def get_path(self, d, x, r, h):
+        cylinders = []
+        t = (d,x,r,h,1,[])
+        cylinders.append(t)
+        count = 0
+        while count < self.max_iter:
+            t = self.get_next_point(d,x,r,h)
+
+            if t==None: break
+
+            cylinders.append(t)
+            print(t[1])
+
+            d=t[0]
+            x=t[1]
+            r=t[2]
+            h=t[3]
+
+            count+=1
+
+        return cylinders
 
     def get_next_point(self, d0, x0, r0, h0):
 
@@ -47,7 +68,14 @@ class RansacVesselTracker(VesselTracker):
 
         x = x+np.median(coeff)*d
 
-        return d,x,r,h,p,in_
+        moved_distance = np.sqrt(np.sum((x-x0)**2))
+
+        if p > self.p_in/2:
+            if moved_distance > 0.15*r0:
+                return d,x,r,h,p,in_
+
+        print("insufficient progress made, stopping path")
+        return None
 
     def get_ransac_cylinder(self, d0, x0, r0):
 
@@ -69,7 +97,6 @@ class RansacVesselTracker(VesselTracker):
 
         for i in range(self.Nd):
             dtest = candidate_axes[i]
-            print(dtest, d0, np.sum(d0*dtest))
 
             best_center, best_r, best_in_rate, inliers, outliers = \
                 ransac.ransac_cylinder(surface_points, x0, dtest, r0, self.p_in,

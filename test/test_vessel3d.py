@@ -75,19 +75,10 @@ tracker.set_params(Nr=Nr, Np=Np, Nd=Nd, Nc=Ncylinder, p_in=p_in, max_dev=max_dev
 tracker.set_image(I_int)
 
 print("starting tracker")
-cylinders = []
-for i in range(20):
-    t = tracker.get_next_point(dt,c0,r0,h0)
-    cylinders.append(t)
-    print(t[1])
 
-    dt =t[0]
-    c0 =t[1]
-    r0 =t[2]
-    h0 =t[3]
+cylinders = tracker.get_path(dt,c0,r0,h0)
+
 #################
-#
-#
 fig = plt.figure()
 ax = fig.add_subplot(111, projection='3d')
 
@@ -129,8 +120,8 @@ for C in cylinders:
     p = C[4]
     in_ = C[5]
 
-
-    ax.scatter(in_[:,0],in_[:,1],in_[:,2],color='g')
+    if len(in_)>0:
+        ax.scatter(in_[:,0],in_[:,1],in_[:,2],color='g')
 #
 # ax.scatter(path_points[:,0],path_points[:,1],path_points[:,2],
 #     color='k')
