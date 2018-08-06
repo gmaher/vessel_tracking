@@ -1,3 +1,4 @@
+*.mha
 /test/data
 /test/figures
 # Byte-compiled / optimized / DLL files
