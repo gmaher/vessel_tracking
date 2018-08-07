@@ -81,4 +81,18 @@ start_points['test_1'] = \
 "h":h0
 }
 
+c0 = np.array([1.0,0.0,-3])
+r0 = 1.2
+dt = np.array([0,0.1,0.9])
+dt = dt/np.sqrt(np.sum(dt**2))
+h0 = 0.5
+
+start_points['test_2'] = \
+{
+"x":c0.tolist(),
+"d":dt.tolist(),
+"r":r0,
+"h":h0
+}
+
 util.write_json(start_points,'start_points.json')
