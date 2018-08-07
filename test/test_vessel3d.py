@@ -15,8 +15,6 @@ import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
 from matplotlib import cm
 
-import importlib
-
 import argparse
 parser = argparse.ArgumentParser()
 parser.add_argument('-input_dir')

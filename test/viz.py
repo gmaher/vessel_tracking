@@ -1,3 +1,54 @@
+import sys
+import os
+sys.path.append(os.path.abspath('..'))
+
+import numpy as np
+import matplotlib.pyplot as plt
+
+from scipy.interpolate import LinearNDInterpolator
+from scipy import optimize
+
+from vessel_tracking import geometry, util
+from tqdm import tqdm
+
+import matplotlib.pyplot as plt
+from mpl_toolkits.mplot3d import Axes3D
+from matplotlib import cm
+
+import argparse
+parser = argparse.ArgumentParser()
+parser.add_argument('-input_dir')
+parser.add_argument('--path_dir', type=str, default='./vessel_paths')
+args   = parser.parse_args()
+
+#############################################
+# Import image and points
+#############################################
+im_file = [a for a in os.listdir(args.input_dir) if ".mha" in a][0]
+I            = util.load_image(args.input_dir+'/'+im_file)
+meta         = util.load_json(args.input_dir+'/meta.json')
+points_j       = util.load_json(args.input_dir+'/points.json')
+start_points_j = util.load_json(args.input_dir+'/start_points.json')
+
+points = np.array(points_j['points'])
+##############################################
+
+##############################################
+# Import Vessels
+##############################################
+vessel_dir = os.path.abspath(args.path_dir)
+folders = os.listdir(vessel_dir)
+if len(folders) == 0:
+    raise RuntimeError("no vessel path folders found in {}".format(vessel_dir))
+
+paths = []
+for f in folders:
+    vdir = vessel_dir+'/'+f
+    path_points = util.load_json(vdir+'/path_points.json')['path_points']
+
+    paths.append(np.array(path_points))
+
+##############################################
 N = int(meta['HEIGHT']/meta['SPACING'])
 x = np.linspace(-meta['HEIGHT'],meta['HEIGHT'],N)
 
@@ -8,43 +59,9 @@ ax = fig.add_subplot(111, projection='3d')
 
 ax.contourf(Y,X,I[:,:,0], zdir='z', offset=0, cmap=cm.gray)
 
-for C in cylinders:
-    d = C[0]
-    c = C[1]
-    r = C[2]
-    h = C[3]
-    p = C[4]
-    in_ = C[5]
+for path in paths:
+    ax.plot(path[:,0],path[:,1],path[:,2],color='g',marker='o')
 
-    Ps = geometry.cylinder_surface(-h/2, h/2, 5, c,d,r)
-
-    ax.plot_surface(Ps[:,:,0], Ps[:,:,1], Ps[:,:,2], color='b')
-
-ax.set_xlim(-meta['HEIGHT'],meta['HEIGHT'])
-ax.set_ylim(-meta['HEIGHT'],meta['HEIGHT'])
-ax.set_zlim(-meta['HEIGHT'],meta['HEIGHT'])
-plt.show()
-plt.close()
-
-fig = plt.figure()
-ax = fig.add_subplot(111, projection='3d')
-
-ax.contourf(Y,X,I[:,:,0], zdir='z', offset=0, cmap=cm.gray)
-
-for C in cylinders:
-    d = C[0]
-    c = C[1]
-    r = C[2]
-    h = C[3]
-    p = C[4]
-    in_ = C[5]
-
-    if len(in_)>0:
-        ax.scatter(in_[:,0],in_[:,1],in_[:,2],color='g')
-#
-# ax.scatter(path_points[:,0],path_points[:,1],path_points[:,2],
-#     color='k')
-#
 ax.set_xlim(-meta['HEIGHT'],meta['HEIGHT'])
 ax.set_ylim(-meta['HEIGHT'],meta['HEIGHT'])
 ax.set_zlim(-meta['HEIGHT'],meta['HEIGHT'])
