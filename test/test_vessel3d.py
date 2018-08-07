@@ -19,10 +19,7 @@ import importlib
 
 import argparse
 parser = argparse.ArgumentParser()
-parser.add_argument('-image')
-parser.add_argument('-meta')
-parser.add_argument('-points')
-parser.add_argument('-start_points')
+parser.add_argument('-input_dir')
 parser.add_argument('--out_dir', type=str, default='.')
 args   = parser.parse_args()
 
@@ -33,22 +30,19 @@ Ncylinder     = 300
 p_in          = 0.65
 max_dev       = 0.5
 inlier_factor = 0.15
-step_size     = 6
+step_size     = 4
 
 #############################################
 # Import image and points
 #############################################
-I            = util.load_image(args.image)
-meta         = util.load_json(args.meta)
-points_j       = util.load_json(args.points)
-start_points_j = util.load_json(args.start_points)
+im_file = [a for a in os.listdir(args.input_dir) if ".mha" in a][0]
+I            = util.load_image(args.input_dir+'/'+im_file)
+meta         = util.load_json(args.input_dir+'/meta.json')
+points_j       = util.load_json(args.input_dir+'/points.json')
+start_points_j = util.load_json(args.input_dir+'/start_points.json')
 
 points = np.array(points_j['points'])
 
-c0 = np.array(start_points_j['start_points'][0]['x'])
-d0 = np.array(start_points_j['start_points'][0]['d'])
-r0 = start_points_j['start_points'][0]['r']
-h0 = start_points_j['start_points'][0]['h']
 #############################################
 #############################################
 
@@ -63,58 +57,39 @@ tracker.set_image(I_int)
 
 print("starting tracker")
 
-cylinders = tracker.get_path(d0,c0,r0,h0)
+output_paths = {}
 
-#################
-N = int(meta['HEIGHT']/meta['SPACING'])
-x = np.linspace(-meta['HEIGHT'],meta['HEIGHT'],N)
+cur_dir = os.path.abspath(args.out_dir+'/vessel_paths')
+try:
+    os.mkdir(cur_dir)
+except:
+    print(cur_dir, " already exists")
 
-X,Y = np.meshgrid(x,x)
+for start in start_points_j:
+    sp = start_points_j[start]
 
-fig = plt.figure()
-ax = fig.add_subplot(111, projection='3d')
+    c0 = np.array(sp['x'])
+    d0 = np.array(sp['d'])
+    r0 = sp['r']
+    h0 = sp['h']
 
-ax.contourf(X,Y,I[:,:,0], zdir='z', offset=0, cmap=cm.gray)
+    cylinders = tracker.get_path(d0,c0,r0,h0)
 
-for C in cylinders:
-    d = C[0]
-    c = C[1]
-    r = C[2]
-    h = C[3]
-    p = C[4]
-    in_ = C[5]
+    p_dir = cur_dir+'/'+start
+    try:
+        os.mkdir(p_dir)
+    except:
+        print(p_dir, " already exists")
 
-    Ps = geometry.cylinder_surface(-h/2, h/2, 5, c,d,r)
+    path_points = [c[1].tolist() for c in cylinders]
 
-    ax.plot_surface(Ps[:,:,0], Ps[:,:,1], Ps[:,:,2], color='b')
+    surf_points = []
+    for C in cylinders:
+        if len(C[5]) > 0:
+            surf_points = surf_points + [C[5]]
+    surf_points = np.concatenate(surf_points,axis=0).tolist()
 
-ax.set_xlim(-meta['HEIGHT'],meta['HEIGHT'])
-ax.set_ylim(-meta['HEIGHT'],meta['HEIGHT'])
-ax.set_zlim(-meta['HEIGHT'],meta['HEIGHT'])
-plt.show()
-plt.close()
-
-fig = plt.figure()
-ax = fig.add_subplot(111, projection='3d')
-
-ax.contourf(X,Y,I[:,:,0], zdir='z', offset=0, cmap=cm.gray)
-
-for C in cylinders:
-    d = C[0]
-    c = C[1]
-    r = C[2]
-    h = C[3]
-    p = C[4]
-    in_ = C[5]
-
-    if len(in_)>0:
-        ax.scatter(in_[:,0],in_[:,1],in_[:,2],color='g')
-#
-# ax.scatter(path_points[:,0],path_points[:,1],path_points[:,2],
-#     color='k')
-#
-ax.set_xlim(-meta['HEIGHT'],meta['HEIGHT'])
-ax.set_ylim(-meta['HEIGHT'],meta['HEIGHT'])
-ax.set_zlim(-meta['HEIGHT'],meta['HEIGHT'])
-plt.show()
-plt.close()
+    p_dict = {"path_points":path_points}
+    util.write_json(p_dict, p_dir+'/path_points.json')
+    s_dict = {"surface_points":surf_points}
+    util.write_json(s_dict, p_dir+'/surface_points.json')

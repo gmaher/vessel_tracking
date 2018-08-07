@@ -64,14 +64,13 @@ meta['EXTENT'] = [-HEIGHT,HEIGHT,-HEIGHT,HEIGHT,-HEIGHT,HEIGHT]
 
 util.write_json(meta, 'meta.json')
 
-start_points = {"start_points":[]}
-start_points['start_points'].append(
+start_points = {}
+start_points['test_1'] = \
 {
 "x":c0.tolist(),
 "d":dt.tolist(),
 "r":r0,
 "h":h0
 }
-)
 
 util.write_json(start_points,'start_points.json')

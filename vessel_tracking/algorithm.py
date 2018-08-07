@@ -71,7 +71,7 @@ class RansacVesselTracker(VesselTracker):
         moved_distance = np.sqrt(np.sum((x-x0)**2))
 
         if p > self.p_in/2:
-            if moved_distance > 0.15*r0:
+            if moved_distance > 0.1*r0:
                 return d,x,r,h,p,in_
 
         print("insufficient progress made, stopping path")
