@@ -44,6 +44,34 @@ I[N//2:int(N*0.9), N//5-6] = 1.0
 
 I[int(N*0.75), N//5-5:int(0.9*N)] = 1.0
 
+###################
+# Sim
+###################
+Nsim   = 100
+Nsteps = 10
+eps = 0.2
+
+x_start = 0
+y_start = N//2
+
+V = np.zeros((N,N))
+
+for i in range(Nsim):
+    x = x_start
+    y = y_start
+    for i in range(Nsteps):
+
+        r = np.random.rand()
+
+        if r < eps:
+            a = np.randint(4)
+
+        else:
+            
+
+###################
+# Plots
+###################
 plt.figure()
 plt.imshow(I,cmap='gray')
 plt.colorbar()
