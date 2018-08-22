@@ -77,15 +77,15 @@ for i in range(Nsim):
 
         print("step {}, y={} x={}".format(j,y,x))
 
-        r = np.random.rand()
+        ######################
+        # MCTS stuff
+        #
+        #
+        #
+        #
+        #
+        ######################
 
-        if r < eps:
-            a = np.random.randint(4)
-
-        else:
-            a = np.argmax([ V[y,x-1], V[y+1,x], V[y,x+1], V[y-1,x] ])
-
-        print("action {}".format(a))
         mov = action_to_move(a)
 
         xx = x+mov[0]
@@ -102,6 +102,7 @@ for i in range(Nsim):
 
         x = xx
         y = yy
+
 ###################
 # Plots
 ###################
