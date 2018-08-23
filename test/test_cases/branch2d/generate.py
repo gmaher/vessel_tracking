@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 
 sys.path.append(os.path.abspath('../../..'))
 
-from vessel_tracking import util, mcts
+from vessel_tracking import util
 
 def vessel_func(i,j,I):
     return np.mean(I[i-1:i+1,j-1:j+1])
@@ -66,7 +66,7 @@ x_start = 1
 y_start = N//2
 
 V = np.zeros((N,N))
-
+lr = 0.1
 for i in range(Nsim):
     x = x_start
     y = y_start
@@ -98,7 +98,7 @@ for i in range(Nsim):
 
         r = vessel_func(yy,xx,I)
 
-        V[y,x] = r + gamma*V[yy,xx]
+        V[y,x] = (1-lr)*V[y,x]+ lr*(r + gamma*V[yy,xx])
 
         x = xx
         y = yy

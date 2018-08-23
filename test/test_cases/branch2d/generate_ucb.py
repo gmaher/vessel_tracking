@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 
 sys.path.append(os.path.abspath('../../..'))
 
-from vessel_tracking import util, mcts
+from vessel_tracking import util
 
 def vessel_func(i,j,I):
     return np.mean(I[i-1:i+1,j-1:j+1])
@@ -57,8 +57,8 @@ I[int(N*0.75), N//5-5:int(0.9*N)] = 1.0
 ###################
 # Sim
 ###################
-Nsim   = 1000
-Nsteps = 5000
+Nsim   = 200
+Nsteps = 200
 eps = 0.75
 gamma = 0.9
 
@@ -66,6 +66,15 @@ x_start = 1
 y_start = N//2
 
 V = np.zeros((N,N))
+
+Visits = np.zeros((N,N))+1e-7
+Visits[0,:] = 1e7
+Visits[N-1,:] = 1e7
+Visits[:,0] = 1e7
+Visits[:,N-1] = 1e7
+
+Cp = 1.0/np.sqrt(2)
+lr = 0.1
 
 for i in range(Nsim):
     x = x_start
@@ -77,14 +86,17 @@ for i in range(Nsim):
 
         print("step {}, y={} x={}".format(j,y,x))
 
-        ######################
-        # MCTS stuff
-        #
-        #
-        #
-        #
-        #
-        ######################
+        #do ucb stuff
+        Visits[y,x] += 1
+        cv = np.log(Visits[y,x]+1e-7)
+
+        values = [ V[y-1,x] + Cp*np.sqrt(cv/Visits[y-1,x]),
+            V[y,x+1]+ Cp*np.sqrt(cv/Visits[y,x+1]),
+            V[y+1,x]+ Cp*np.sqrt(cv/Visits[y+1,x]),
+            V[y,x-1]+ Cp*np.sqrt(cv/Visits[y,x-1]) ]
+
+        a = np.argmax(values)
+        print(values, a)
 
         mov = action_to_move(a)
 
@@ -98,7 +110,7 @@ for i in range(Nsim):
 
         r = vessel_func(yy,xx,I)
 
-        V[y,x] = r + gamma*V[yy,xx]
+        V[y,x] = (1-lr)*V[y,x]+ lr*(r + gamma*V[yy,xx])
 
         x = xx
         y = yy
@@ -118,5 +130,10 @@ plt.show()
 
 plt.figure()
 plt.imshow(V,cmap='gray')
+plt.colorbar()
+plt.show()
+
+plt.figure()
+plt.imshow(Visits[1:-1,1:-1],cmap='gray')
 plt.colorbar()
 plt.show()
