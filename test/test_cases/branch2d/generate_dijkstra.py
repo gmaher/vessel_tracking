@@ -9,6 +9,9 @@ sys.path.append(os.path.abspath('../../..'))
 from vessel_tracking import util
 
 def vessel_func(i,j,I):
+    if i ==0 or i == N-1 or j == 0 or j == N-1:
+        return I[i,j]
+
     return np.mean(I[i-1:i+1,j-1:j+1])
 
 def action_to_move(a):
@@ -20,6 +23,23 @@ def action_to_move(a):
         return (0,1)
     if a == 3:
         return (-1,0)
+
+def check_path(p,I, min_val=12):
+    #no repeat visits
+    d = {}
+    for point in p:
+        if point in d: return False
+        d[point] = 1
+
+    value = 0
+    for point in p:
+        value += vessel_func(point[1], point[0], I)
+
+
+    if value < min_val: return False
+    print(value)
+
+    return True
 
 N = 50
 NOISE_FACTOR = 0.35
@@ -57,8 +77,8 @@ I[int(N*0.75), N//5-5:int(0.9*N)] = 1.0
 ###################
 # Sim
 ###################
-Nsim   = 5000
-Nsteps = 500
+Nsim   = 1000000
+Nsteps = 30
 paths = []
 
 x_start = 1
@@ -74,7 +94,7 @@ for i in range(Nsim):
     for s in range(1,Nsteps):
         mov_x = np.random.randint(low=-1,high=2)
         mov_y = np.random.randint(low=-1,high=2)
-        print(mov_x,mov_y)
+
         x = x+mov_x
         y = y+mov_y
 
@@ -96,14 +116,27 @@ plt.imshow(I+Noise,cmap='gray')
 plt.colorbar()
 plt.show()
 
+# plt.figure()
+# plt.imshow(I, extent=[0,N,0,N], cmap='gray')
+# plt.colorbar()
+#
+# for p in paths:
+#     x = [z[0] for z in p]
+#     y = [z[1] for z in p]
+#
+#     plt.plot(x,y)
+#
+# plt.show()
+#
 plt.figure()
-plt.imshow(I, extent=[0,N,0,N], cmap='gray')
+plt.imshow(I, extent=[0,N,N,0], cmap='gray')
 plt.colorbar()
 
 for p in paths:
-    x = [z[0] for z in p]
-    y = [z[1] for z in p]
+    if check_path(p,I):
+        x = [z[0] for z in p]
+        y = [z[1] for z in p]
 
-    plt.plot(x,y)
+        plt.plot(x,y)
 
 plt.show()
