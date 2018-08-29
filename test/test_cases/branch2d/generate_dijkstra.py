@@ -57,71 +57,32 @@ I[int(N*0.75), N//5-5:int(0.9*N)] = 1.0
 ###################
 # Sim
 ###################
-Nsim   = 1000
-Nsteps = 100
-eps = 0.75
-gamma = 1.0
+Nsim   = 5000
+Nsteps = 500
+paths = []
 
 x_start = 1
 y_start = N//2
 
-V = np.zeros((N,N))
-
-Visits = np.zeros((N,N))+1e-7
-Visits[0,:] = 1e7
-Visits[N-1,:] = 1e7
-Visits[:,0] = 1e7
-Visits[:,N-1] = 1e7
-
-#Cp = 1.0/np.sqrt(2)
-Cp = 100
-lr = 0.1
-
 for i in range(Nsim):
+    print(i)
     x = x_start
     y = y_start
+    path = []
+    path.append((x,y))
 
-    print ("Sim {}".format(i))
+    for s in range(1,Nsteps):
+        mov_x = np.random.randint(low=-1,high=2)
+        mov_y = np.random.randint(low=-1,high=2)
+        print(mov_x,mov_y)
+        x = x+mov_x
+        y = y+mov_y
 
-    for j in range(Nsteps):
+        path.append((x,y))
+        if x == 0 or x == N-1 or y == 0 or y == N-1:
+            break
 
-        print("step {}, y={} x={}".format(j,y,x))
-
-        #do ucb stuff
-        Visits[y,x] += 1
-        cv = np.log(Visits[y,x]+1e-7)
-
-        vis = [ Visits[y-1,x],
-            Visits[y,x+1],
-            Visits[y+1,x],
-            Visits[y,x-1] ]
-
-        values = [ V[y-1,x] + Cp*np.sqrt(cv/Visits[y-1,x]),
-            V[y,x+1]+ Cp*np.sqrt(cv/Visits[y,x+1]),
-            V[y+1,x]+ Cp*np.sqrt(cv/Visits[y+1,x]),
-            V[y,x-1]+ Cp*np.sqrt(cv/Visits[y,x-1]) ]
-
-        a = np.argmax(values)
-        # print(values, a)
-        # print("visits={}".format(vis))
-        # print(Visits[y,x])
-        mov = action_to_move(a)
-
-        xx = x+mov[0]
-        yy = y+mov[1]
-
-        if xx < 1:   xx = 1
-        if xx > N-2: xx = N-2
-        if yy < 1:   yy = 1
-        if yy > N-2: yy = N-2
-
-        r = vessel_func(yy,xx,I)
-
-        V[y,x] = (1-lr)*V[y,x]+ lr*(r + gamma*V[yy,xx])
-
-        x = xx
-        y = yy
-
+    paths.append(path)
 ###################
 # Plots
 ###################
@@ -136,11 +97,13 @@ plt.colorbar()
 plt.show()
 
 plt.figure()
-plt.imshow(V,cmap='gray')
+plt.imshow(I, extent=[0,N,0,N], cmap='gray')
 plt.colorbar()
-plt.show()
 
-plt.figure()
-plt.imshow(Visits[1:-1,1:-1],cmap='gray')
-plt.colorbar()
+for p in paths:
+    x = [z[0] for z in p]
+    y = [z[1] for z in p]
+
+    plt.plot(x,y)
+
 plt.show()
