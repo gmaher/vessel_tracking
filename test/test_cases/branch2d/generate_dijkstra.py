@@ -77,12 +77,12 @@ I[int(N*0.75), N//5-5:int(0.9*N)] = 1.0
 ###################
 # Sim
 ###################
-Nsim   = 1000000
+Nsim   = 100000
 Nsteps = 30
 paths = []
 
 x_start = 1
-y_start = N//2
+y_start = N//2+1
 
 for i in range(Nsim):
     print(i)

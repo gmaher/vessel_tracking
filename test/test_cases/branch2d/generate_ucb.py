@@ -83,9 +83,17 @@ for i in range(Nsim):
 
     print ("Sim {}".format(i))
 
+    visited = {}
+
     for j in range(Nsteps):
 
         print("step {}, y={} x={}".format(j,y,x))
+
+        beta = 1
+        if (y,x) in visited:
+            beta = 0.1
+
+        visited[(y,x)] = 1
 
         #do ucb stuff
         Visits[y,x] += 1
@@ -115,7 +123,7 @@ for i in range(Nsim):
         if yy < 1:   yy = 1
         if yy > N-2: yy = N-2
 
-        r = vessel_func(yy,xx,I)
+        r = beta*vessel_func(yy,xx,I)
 
         V[y,x] = (1-lr)*V[y,x]+ lr*(r + gamma*V[yy,xx])
 
@@ -143,4 +151,51 @@ plt.show()
 plt.figure()
 plt.imshow(Visits[1:-1,1:-1],cmap='gray')
 plt.colorbar()
+plt.show()
+
+################################
+# Sample Paths
+################################
+Nsim   = 1000
+Nsteps = 200
+paths = []
+
+x_start = 1
+y_start = N//2+1
+
+for i in range(Nsim):
+    print(i)
+    x = x_start
+    y = y_start
+    path = []
+    path.append((x,y))
+
+    for s in range(1,Nsteps):
+        values = np.array([ V[y-1,x], V[y,x+1], V[y+1,x], V[y,x-1] ])
+        values = values/(np.sum(values))
+
+        a = np.random.choice(4, p=values)
+
+        mov = action_to_move(a)
+
+        x = x+mov[0]
+        y = y+mov[1]
+
+        path.append((x,y))
+        if x == 0 or x == N-1 or y == 0 or y == N-1:
+            break
+
+    paths.append(path)
+
+
+plt.figure()
+plt.imshow(I, extent=[0,N,N,0], cmap='gray')
+plt.colorbar()
+
+for p in paths:
+    x = [z[0] for z in p]
+    y = [z[1] for z in p]
+
+    plt.plot(x,y)
+
 plt.show()
