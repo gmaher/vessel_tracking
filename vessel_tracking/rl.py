@@ -19,7 +19,7 @@ class ImageEnv2D:
 
         self.H, self.W = self.image.shape
 
-    def step(action):
+    def step(self, action):
         if (action == 0):
             self.s[0] -= 1
 
@@ -27,21 +27,21 @@ class ImageEnv2D:
             self.s[1]+=1
 
         elif (action == 2):
-            self.s[2]+=1
+            self.s[0]+=1
 
         elif (action == 3):
-            self.s[3]-=1
+            self.s[1]-=1
 
-        if (self.s[0] == 0 or self.s[0] == H\
-            or self.s[1] == 0 or self.s[1] == W):
+        if (self.s[0] == 0 or self.s[0] == self.H\
+            or self.s[1] == 0 or self.s[1] == self.W):
 
             self.done = True
 
         p = point_to_index(self.s[0], self.s[1], self.H, self.W)
 
         return p, self.done
-        
-    def reset():
+
+    def reset(self):
         self.s    = self.start.copy()
         self.done = False;
-        return self.s
+        return point_to_index(self.s[0], self.s[1], self.H, self.W)
