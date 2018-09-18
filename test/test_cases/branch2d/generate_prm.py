@@ -3,6 +3,7 @@ import os
 import sys
 import SimpleITK as sitk
 import matplotlib.pyplot as plt
+from queue import Queue
 
 sys.path.append(os.path.abspath('../../..'))
 
@@ -55,57 +56,39 @@ I[N//2:int(N*0.9), N//5-6] = 1.0
 I[int(N*0.75), N//5-5:int(0.9*N)] = 1.0
 
 I_vec = np.zeros((N*N))
+points = np.zeros((N*N,2))
 for i in range(N):
     for j in range(N):
+        points[j+i*N,0] = i
+        points[j+i*N,1] = j
+
         I_vec[j+i*N] = I[i,j]
 
+
+from scipy.interpolate import LinearNDInterpolator
+
+Im_int = LinearNDInterpolator(points, np.ravel(I))
+
+Nsamp = 1000
+p_samp = np.random.randint(N,size=(Nsamp,2))
+vals = Im_int(p_samp)
+
+V_free = p_samp[vals>0]
 ###################
-# Sim
+# PRM
 ###################
-Nsim   = 10000
-Nsteps = 5000
-eps = 0.75
-gamma = 0.9
-lr = 0.1
+edges = np.zeros((Nsamp,Nsamp))
+q = Queue()
+p_start = np.array([26,1])
+K = 3
+q.put(p_start)
+V = V_free.copy()
+while not q.empty():
+    p = q.get()
 
-i_start = N//2+1
-j_start = 1
-s_start = np.array([i_start,j_start])
+    dists = np.sum((V_free-p)**2,axis=1)
 
-index_start = rl.point_to_index(s_start[0],s_start[1],N,N)
-
-env = rl.ImageEnv2D(I,s_start)
-
-Q   = np.zeros((N*N,4))
-
-for n in range(Nsim):
-
-    s = env.reset()
-
-    print ("Sim {}".format(n))
-
-    for t in range(Nsteps):
-
-        rand = np.random.rand()
-        if rand < eps:
-            a = np.random.randint(4)
-        else:
-            a = np.argmax(Q[s])
-
-        ss,done = env.step(a)
-
-        r = I_vec[ss]
-
-        Q[s,a] = (1-lr)*Q[s,a] + lr*( r + gamma*np.amax( Q[ss] ) )
-
-        print("step {}, s={}, a={}, r={}, ss={}, Q={}".format(t,s,a,r,ss, Q[s,a]))
-        s = ss
-
-        if(done):
-            break
-
-Qp = np.amax(Q,axis=1)
-Qp = np.reshape(Qp,(N,N))
+    d_sorted = sorted(dists)
 ###################
 # Plots
 ###################
@@ -114,17 +97,14 @@ plt.imshow(I,cmap='gray')
 plt.colorbar()
 plt.show()
 
+
 plt.figure()
-plt.imshow(Qp,cmap='gray')
+plt.imshow(I,cmap='gray')
 plt.colorbar()
+
+for i in range(Nsamp):
+    if vals[i] > 0:
+        color = 'r'
+
+        plt.scatter(p_samp[i,1], p_samp[i,0], color=color)
 plt.show()
-#
-# plt.figure()
-# plt.imshow(V,cmap='gray')
-# plt.colorbar()
-# plt.show()
-#
-# plt.figure()
-# plt.imshow(Visits[1:-1,1:-1],cmap='gray')
-# plt.colorbar()
-# plt.show()
