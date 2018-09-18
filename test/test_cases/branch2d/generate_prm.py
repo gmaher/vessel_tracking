@@ -89,6 +89,7 @@ while not q.empty():
     dists = np.sum((V_free-p)**2,axis=1)
 
     d_sorted = sorted(dists)
+
 ###################
 # Plots
 ###################
