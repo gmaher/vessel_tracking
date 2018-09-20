@@ -9,6 +9,18 @@ sys.path.append(os.path.abspath('../../..'))
 
 from vessel_tracking import util, rl
 
+class CollisionDetector(object):
+    def __init__(self,I_int,n=100):
+        self.I_int = I_int
+        self.n = n
+
+    def collision(self,p1,p2):
+        for i in np.linspace(0,1,self.n):
+            p = (1-i)*p1+i*p2
+            if float(self.I_int(p)) <= 0.1:
+                return True
+        return False
+
 def vessel_func(i,j,I):
     return np.mean(I[i-1:i+1,j-1:j+1])
 
@@ -69,7 +81,7 @@ from scipy.interpolate import LinearNDInterpolator
 
 Im_int = LinearNDInterpolator(points, np.ravel(I))
 
-Nsamp = 2000
+Nsamp = 4000
 p_samp = np.random.randint(N,size=(Nsamp,2))
 vals = Im_int(p_samp)
 
@@ -83,10 +95,10 @@ V_free = np.concatenate((p_start[np.newaxis,:],V_free),axis=0)
 Nfree = V_free.shape[0]
 
 q = Queue()
-K = 3
-Kfar = 10
+K = 2
+Kfar = 20
 q.put(0)
-DIST_CUTOFF=50
+DIST_CUTOFF=100
 
 connected=False
 
@@ -96,7 +108,9 @@ in_tree[0] = 1
 edges = [ 0 ]*Nfree
 for i in range(Nfree):
     edges[i] = []
-#TODO: collision free check needed
+
+CD = CollisionDetector(Im_int)
+
 while not q.empty():
     p = q.get()
     connected = False
@@ -110,19 +124,23 @@ while not q.empty():
     print("{} : {}".format(p,idx))
     for i in range(K):
         if in_tree[idx[i]] == 0:
-            edges[p].append(idx[i])
-            q.put(idx[i])
-            in_tree[idx[i]] = 1
-            connected = True
+            if not CD.collision(V_free[p],V_free[idx[i]]):
+
+                edges[p].append(idx[i])
+                q.put(idx[i])
+                in_tree[idx[i]] = 1
+                connected = True
 
     if not connected:
         for i in range(Kfar):
             if in_tree[idx[i]] == 0:
                 if (dists[idx[i]] < DIST_CUTOFF):
-                    edges[p].append(idx[i])
-                    q.put(idx[i])
-                    in_tree[idx[i]] = 1
-                    break
+                    if not CD.collision(V_free[p],V_free[idx[i]]):
+
+                        edges[p].append(idx[i])
+                        q.put(idx[i])
+                        in_tree[idx[i]] = 1
+                        break
 
 ###################
 # Plots
@@ -141,12 +159,12 @@ for i in range(Nsamp):
     if vals[i] > 0:
         color = 'b'
 
-        plt.scatter(p_samp[i,1], p_samp[i,0], color=color)
+        plt.scatter(p_samp[i,1]+0.5, p_samp[i,0]+0.5, color=color)
 
 for i in range(Nfree):
     p1 = V_free[i]
     for e in edges[i]:
         p2 = V_free[e]
 
-        plt.plot([p1[1],p2[1]], [p1[0],p2[0]], color='r')
+        plt.plot([p1[1]+0.5,p2[1]+0.5], [p1[0]+0.5,p2[0]+0.5], color='r')
 plt.show()
