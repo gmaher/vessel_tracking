@@ -123,7 +123,7 @@ while not q.empty():
 
     print("{} : {}".format(p,idx))
     for i in range(K):
-        if in_tree[idx[i]] == 0:
+        if in_tree[idx[i]] < 0.1:
             if not CD.collision(V_free[p],V_free[idx[i]]):
 
                 edges[p].append(idx[i])
@@ -133,7 +133,7 @@ while not q.empty():
 
     if not connected:
         for i in range(Kfar):
-            if in_tree[idx[i]] == 0:
+            if in_tree[idx[i]] < 0.1:
                 if (dists[idx[i]] < DIST_CUTOFF):
                     if not CD.collision(V_free[p],V_free[idx[i]]):
 
