@@ -8,6 +8,7 @@ from queue import Queue
 sys.path.append(os.path.abspath('../../..'))
 
 from vessel_tracking import util, rl
+from vessel_tracking.graph import Graph
 
 class CollisionDetector(object):
     def __init__(self,I_int,n=100):
@@ -23,16 +24,6 @@ class CollisionDetector(object):
 
 def vessel_func(i,j,I):
     return np.mean(I[i-1:i+1,j-1:j+1])
-
-def action_to_move(a):
-    if a == 0:
-        return (0,-1)
-    if a == 1:
-        return (1,0)
-    if a == 2:
-        return (0,1)
-    if a == 3:
-        return (-1,0)
 
 N = 50
 NOISE_FACTOR = 0.35
@@ -95,8 +86,7 @@ V_free = np.concatenate((p_start[np.newaxis,:],V_free),axis=0)
 Nfree = V_free.shape[0]
 
 q = Queue()
-K = 10
-DIST_CUTOFF=100
+K = 30
 
 connected=False
 
@@ -123,32 +113,22 @@ for i in range(Nfree):
                 t = ((i,idx[j]), (p,p_next), c)
                 edges.append(t)
 
-edges_sorted = sorted(edges, key=lambda t: t[2])
-tree_edges = []
-neighbor_sets = []
-visited_nodes = {}
+G = Graph(Nfree)
 
-for i in range(Nfree):
-    s = set()
-    s.add(i)
-    neighbor_sets.append(s)
+for e in edges:
+    u = e[0][0]
+    v = e[0][1]
+    w = e[-1]
+    G.addEdge(u,v,w)
 
-for e in edges_sorted:
-    u_id = e[0][0]
-    v_id = e[0][1]
-    if not neighbor_sets[u_id] == neighbor_sets[v_id]:
-        tree_edges.append(e)
-        a = neighbor_sets[u_id].union(neighbor_sets[v_id])
-        neighbor_sets[u_id] = a
-        neighbor_sets[v_id] = a
-
+MST = G.KruskalMST()
 ###################
 # Plots
 ###################
-plt.figure()
-plt.imshow(I,cmap='gray')
-plt.colorbar()
-plt.show()
+# plt.figure()
+# plt.imshow(I,cmap='gray')
+# plt.colorbar()
+# plt.show()
 
 
 plt.figure()
@@ -161,10 +141,13 @@ for i in range(Nsamp):
 
         plt.scatter(p_samp[i,1], p_samp[i,0], color=color)
 
-for t in edges:
-    p1 = t[1][0]
+for t in MST:
+    id1 = t[0]
 
-    p2 = t[1][1]
+    id2 = t[1]
+
+    p1 = V_free[id1]
+    p2 = V_free[id2]
 
     plt.plot([p1[1],p2[1]], [p1[0],p2[0]], color='r')
 plt.show()
