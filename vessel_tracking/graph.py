@@ -3,6 +3,7 @@
 # undirected and weighted graph
 
 from collections import defaultdict
+import numpy as np
 
 #Class to represent a graph
 class Graph:
@@ -85,3 +86,35 @@ class Graph:
 
         # print the contents of result[] to display the built MST
         return result
+
+def DetectTree(V_free, cost_func, CD, K=20):
+    Nfree = V_free.shape[0]
+    edges = []
+    for i in range(Nfree):
+        #for each node get K nearest neighbors that are collison free
+        p = V_free[i]
+        dists = np.sum((V_free-p)**2,axis=1)
+
+        dists[i] = 1e10
+
+        idx   = np.argpartition(dists,K)[:K]
+
+        for j in range(K):
+            p_next = V_free[idx[j]]
+            if not (p_next[0]==p[0] and p_next[1]==p[1]):
+                if not CD.collision(p,p_next):
+                    c = cost_func(p,p_next)
+                    t = ((i,idx[j]), (p,p_next), c)
+                    edges.append(t)
+
+    G = Graph(Nfree)
+
+    for e in edges:
+        u = e[0][0]
+        v = e[0][1]
+        w = e[-1]
+        G.addEdge(u,v,w)
+
+    MST = G.KruskalMST()
+
+    return MST,edges
