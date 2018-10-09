@@ -1,0 +1,5 @@
+GROUPS: /media/marsdenlab/Data2/vascular_data/OSMSC0097/0097_0001/0097_0001_groups-cm
+IMAGE: /media/marsdenlab/Data2/vascular_data/OSMSC0097/OSMSC0097-cm.mha
+NAME: OSMSC0097
+PATHS: /media/marsdenlab/Data2/vascular_data/OSMSC0097/0097_0001/0097_0001-cm.paths
+SEGMENTATION: /media/marsdenlab/Data2/vascular_data/OSMSC0097/0097_0001/0097_0001-cm.mha

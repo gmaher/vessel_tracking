@@ -1,0 +1,5 @@
+GROUPS: /media/marsdenlab/Data2/vascular_data/normal4/normal4_stump/normal4_stump_groups
+IMAGE: /media/marsdenlab/Data2/vascular_data/normal4/normal4_contrast.mha
+NAME: normal4
+PATHS: /media/marsdenlab/Data2/vascular_data/normal4/normal4_stump/normal4_stump.paths
+SEGMENTATION: /media/marsdenlab/Data2/vascular_data/normal4/normal4_stump/normal4_stump.mha
