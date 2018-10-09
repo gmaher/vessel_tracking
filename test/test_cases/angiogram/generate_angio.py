@@ -49,7 +49,7 @@ from scipy.interpolate import LinearNDInterpolator
 
 Im_int = LinearNDInterpolator(points+0.5, np.ravel(I))
 
-Nsamp = 3000
+Nsamp = 1000
 p_samp = np.random.rand(Nsamp,2)
 p_samp[:,0] *= H
 p_samp[:,1] *= W
