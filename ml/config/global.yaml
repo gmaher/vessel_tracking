@@ -1,4 +1,6 @@
 SPACING: 0.035
 VASCULAR_DATA_DIR: "/media/marsdenlab/Data2/vascular_data"
+DATA_DIR: "/media/marsdenlab/Data2/datasets/vessel_tracking"
 CASES_DIR: "/home/marsdenlab/projects/vessel_tracking/ml/data"
 DIM: 128
+DATA_SAMPLES: 200

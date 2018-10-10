@@ -8,7 +8,36 @@ from scipy.interpolate import UnivariateSpline
 from vtk import vtkImageExport
 from vtk.util import numpy_support
 import os
+import SimpleITK as sitk
 
+def sitk_read_image(fn):
+    return sitk.ReadImage(fn)
+
+def sitk_image_to_numpy(im):
+    return sitk.GetArrayFromImage(im)
+
+def sitk_resample_image(image, new_spacing):
+    """
+    Given a 2D image and mask:
+       a. resample the image and mask into isotropic grid (required for display).
+       b. rescale the image intensities using the given window information.
+       c. overlay the contours computed from the mask onto the image.
+    """
+    # Resample the image (linear interpolation) and mask (nearest neighbor interpolation) into an isotropic grid,
+    # required for display.
+    original_spacing = image.GetSpacing()
+    original_size = image.GetSize()
+
+    new_size = []
+    for i in range(len(new_spacing)):
+        f = original_size[i]*(original_spacing[i]/new_spacing[i])
+        new_size.append(int(f))
+
+    resampled_img = sitk.Resample(image, new_size, sitk.Transform(),
+                                  sitk.sitkLinear, image.GetOrigin(),
+                                  new_spacing, image.GetDirection(), 0.0, image.GetPixelID())
+    return resampled_img
+    
 def mkdir(fn):
     if not os.path.exists(os.path.abspath(fn)):
         os.mkdir(os.path.abspath(fn))
@@ -54,11 +83,19 @@ def vtk_image_to_numpy(im):
 
     H,W,D = im.GetDimensions()
     sc = im.GetPointData().GetScalars()
-    a = numpy_support.vtk_to_numpy(sc)
-    a = a.reshape(H, W, D)
 
-    assert a.shape==im.GetDimensions()
-    return a
+    a = np.zeros((H,W,D)).astype(float)
+
+    from tqdm import tqdm
+
+    count = 0
+    for i in tqdm(range(H)):
+        for j in range(W):
+            for k in range(D):
+                a[i,j,k] = sc.GetValue(count)
+
+                count +=1
+    return a.copy()
 
 def normalizeContour(c,p,t,tx, as_list=False):
     """
@@ -391,6 +428,12 @@ def read_mha(img_fn):
     reader.SetFileName(img_fn)
     reader.Update()
     return reader.GetOutput()
+
+def write_mha(im, fn):
+    writer = vtk.MetaImageWriter()
+    writer.SetInputData(im)
+    writer.SetFileName(fn)
+    writer.Write()
 
 def getImageReslice(img, ext, p, n, x, spacing, asnumpy=False):
     """
