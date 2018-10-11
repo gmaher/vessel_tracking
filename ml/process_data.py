@@ -36,6 +36,8 @@ image_dir = global_config['DATA_DIR']+'/'+case_dict['NAME']
 sv.mkdir(image_dir)
 
 image        = sv.sitk_read_image(case_dict['IMAGE'])
+
+print(image.GetSize())
 image        = sv.sitk_resample_image(image,spacing_vec)
 
 segmentation = sv.sitk_read_image(case_dict['SEGMENTATION'])
@@ -46,7 +48,7 @@ seg_np = sv.sitk_image_to_numpy(segmentation)
 seg_np = (1.0*seg_np-np.amin(seg_np))/(np.amax(seg_np)-np.amin(seg_np)+1e-3)
 
 H,W,D = seg_np.shape
-
+print(image.GetSize())
 ids = []
 ids_neg = []
 
@@ -78,9 +80,13 @@ for i,t in tqdm(enumerate(ids)):
     np.save(pos_dir+'/x.{}.npy'.format(i),x)
     np.save(pos_dir+'/y.{}.npy'.format(i),y)
 
-    scipy.misc.imsave(pos_dir+'/x.{}.png'.format(i),x)
-    scipy.misc.imsave(pos_dir+'/y.{}.png'.format(i),y)
+    try:
+        scipy.misc.imsave(pos_dir+'/x.{}.png'.format(i),x)
+        scipy.misc.imsave(pos_dir+'/y.{}.png'.format(i),y)
 
+    except:
+        pass
+        
 #Sample negative images
 neg_dir = image_dir+'/negative'
 sv.mkdir(neg_dir)
@@ -96,5 +102,8 @@ for i,t in tqdm(enumerate(ids_neg)):
     np.save(neg_dir+'/x.{}.npy'.format(i),x)
     np.save(neg_dir+'/y.{}.npy'.format(i),y)
 
-    scipy.misc.imsave(neg_dir+'/x.{}.png'.format(i),x)
-    scipy.misc.imsave(neg_dir+'/y.{}.png'.format(i),y)
+    try:
+        scipy.misc.imsave(neg_dir+'/x.{}.png'.format(i),x)
+        scipy.misc.imsave(neg_dir+'/y.{}.png'.format(i),y)
+    except:
+        pass
