@@ -100,7 +100,3 @@
 /cabg5/cabg5_all/cabg5_all.mha
 /normal1/normal1_stump/normal1_stump.mha
 /normal4/normal4_stump/normal4_stump.mha
-/OSMSC0003_CLEAN/0003_0001-cm.mha
-/OSMSC0082_CLEAN/0082_0001-cm.mha
-/OSMSC0110_CLEAN/0110_0001-cm.mha
-/cabg5_CLEAN/cabg5_all.mha

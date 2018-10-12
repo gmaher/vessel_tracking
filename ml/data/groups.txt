@@ -100,7 +100,3 @@
 /cabg5/cabg5_all/cabg5_all_groups
 /normal1/normal1_stump/normal1_stump_groups
 /normal4/normal4_stump/normal4_stump_groups
-/OSMSC0003_CLEAN/groups
-/OSMSC0082_CLEAN/groups
-/OSMSC0110_CLEAN/groups
-/cabg5_CLEAN/groups

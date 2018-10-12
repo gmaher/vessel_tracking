@@ -48,15 +48,23 @@ seg_np = sv.sitk_image_to_numpy(segmentation)
 seg_np = (1.0*seg_np-np.amin(seg_np))/(np.amax(seg_np)-np.amin(seg_np)+1e-3)
 
 H,W,D = seg_np.shape
+WS = global_config['SMALL_WINDOW_DIM']
 print(image.GetSize())
 ids = []
+small_ids = []
+
 ids_neg = []
 
 for i in tqdm(range(DIM,H-DIM,3)):
     for j in range(DIM,W-DIM,3):
         for k in range(DIM,D-DIM,3):
             if seg_np[i,j,k] > 0.1:
-                ids.append((i,j,k))
+
+                vpix = np.sum( seg_np[i, int(j-WS/2):int(j+WS/2), int(k-WS/2):int(k+WS/2) ])
+                if vpix < global_config['SMALL_VESSEL_CUTOFF']:
+                    small_ids.append((i,j,k))
+                else:
+                    ids.append((i,j,k))
 
             d = int(DIM/2)
 
@@ -70,6 +78,18 @@ pos_dir = image_dir+'/positive'
 sv.mkdir(pos_dir)
 
 np.random.shuffle(ids)
+np.random.shuffle(small_ids)
+
+print("small vessels: {}".format(len(small_ids)))
+print("large_vessels: {}".format(len(ids)))
+
+if len(small_ids) < global_config['DATA_SAMPLES']/2:
+    n = global_config['DATA_SAMPLES'] - len(small_ids)
+    ids = ids[:n] + small_ids
+else:
+    n = int(global_config['DATA_SAMPLES']/2)
+    ids = ids[:n] + small_ids[:n]
+
 for i,t in tqdm(enumerate(ids)):
     if (i > global_config['DATA_SAMPLES']): break
 
@@ -86,7 +106,7 @@ for i,t in tqdm(enumerate(ids)):
 
     except:
         pass
-        
+
 #Sample negative images
 neg_dir = image_dir+'/negative'
 sv.mkdir(neg_dir)

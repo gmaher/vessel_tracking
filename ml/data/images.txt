@@ -97,10 +97,6 @@
 /OSMSC0187/OSMSC0187-cm.mha
 /OSMSC0189/OSMSC0189-cm.mha
 /cabg11/cabg11-image.mha
-/cabg5/cabg5-image.mha
+/cabg5/cabg5-scan2.mha
 /normal1/normal1-image.mha
 /normal4/normal4_contrast.mha
-/OSMSC0003_CLEAN/OSMSC0003_CLEAN-cm.mha
-/OSMSC0082_CLEAN/OSMSC0082_CLEAN-cm.mha
-/OSMSC0110_CLEAN/OSMSC0110_CLEAN-cm.mha
-/cabg5_CLEAN/cabg5_CLEAN-image.mha

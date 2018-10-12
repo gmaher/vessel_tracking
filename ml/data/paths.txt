@@ -100,7 +100,3 @@
 /cabg5/cabg5_all/cabg5_all.paths
 /normal1/normal1_stump/normal1_stump.paths
 /normal4/normal4_stump/normal4_stump.paths
-/OSMSC0003_CLEAN/0003_paths.paths
-/OSMSC0082_CLEAN/0082_paths.paths
-/OSMSC0110_CLEAN/0110_paths.paths
-/cabg5_CLEAN/cabg5_paths.paths
