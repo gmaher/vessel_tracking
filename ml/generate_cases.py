@@ -26,7 +26,8 @@ for i in range(len(images)):
     d['PATHS'] = cases_prefix+paths[i]
 
     name = images[i].split('/')[-1].replace('-cm.mha','')\
-        .replace('-image.mha','').replace('_contrast.mha','')
+        .replace('-image.mha','').replace('_contrast.mha','')\
+        .replace('_scan2.mha','')
 
     d['NAME'] = name
 

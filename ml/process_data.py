@@ -28,7 +28,8 @@ dims_vec    = [global_config['DIM']]*2
 ext_vec     = [global_config['DIM']-1]*2
 DIM = global_config['DIM']
 
-files = open(global_config['VASCULAR_DATA_DIR']+'/files.txt','w')
+files = open(global_config['DATA_DIR']+'/files.txt','a')
+
 
 print(case_dict['NAME'])
 
@@ -97,12 +98,14 @@ for i,t in tqdm(enumerate(ids)):
     x = im_np[t[0], t[1]-d:t[1]+d, t[2]-d:t[2]+d]
     y = seg_np[t[0], t[1]-d:t[1]+d, t[2]-d:t[2]+d]
 
-    np.save(pos_dir+'/x.{}.npy'.format(i),x)
-    np.save(pos_dir+'/y.{}.npy'.format(i),y)
+    files.write(pos_dir+'/{}\n'.format(i))
+
+    np.save(pos_dir+'/{}.x.npy'.format(i),x)
+    np.save(pos_dir+'/{}.y.npy'.format(i),y)
 
     try:
-        scipy.misc.imsave(pos_dir+'/x.{}.png'.format(i),x)
-        scipy.misc.imsave(pos_dir+'/y.{}.png'.format(i),y)
+        scipy.misc.imsave(pos_dir+'/{}.x.png'.format(i),x)
+        scipy.misc.imsave(pos_dir+'/{}.y.png'.format(i),y)
 
     except:
         pass
@@ -119,11 +122,15 @@ for i,t in tqdm(enumerate(ids_neg)):
     x = im_np[t[0], t[1]-d:t[1]+d, t[2]-d:t[2]+d]
     y = seg_np[t[0], t[1]-d:t[1]+d, t[2]-d:t[2]+d]
 
-    np.save(neg_dir+'/x.{}.npy'.format(i),x)
-    np.save(neg_dir+'/y.{}.npy'.format(i),y)
+    files.write(neg_dir+'/{}\n'.format(i))
+
+    np.save(neg_dir+'/{}.x.npy'.format(i),x)
+    np.save(neg_dir+'/{}.y.npy'.format(i),y)
 
     try:
-        scipy.misc.imsave(neg_dir+'/x.{}.png'.format(i),x)
-        scipy.misc.imsave(neg_dir+'/y.{}.png'.format(i),y)
+        scipy.misc.imsave(neg_dir+'/{}.x.png'.format(i),x)
+        scipy.misc.imsave(neg_dir+'/{}.y.png'.format(i),y)
     except:
         pass
+
+files.close()

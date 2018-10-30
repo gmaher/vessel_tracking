@@ -1,5 +1,0 @@
-GROUPS: /media/marsdenlab/Data2/vascular_data/cabg5/cabg5_all/cabg5_all_groups
-IMAGE: /media/marsdenlab/Data2/vascular_data/cabg5/cabg5-scan2.mha
-NAME: cabg5-scan2.mha
-PATHS: /media/marsdenlab/Data2/vascular_data/cabg5/cabg5_all/cabg5_all.paths
-SEGMENTATION: /media/marsdenlab/Data2/vascular_data/cabg5/cabg5_all/cabg5_all.mha
