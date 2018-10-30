@@ -3,8 +3,12 @@ from tqdm import tqdm
 
 def get_data(pos_list, neg_list, N):
     data = {}
-    data['positive_files'] = numpy.random.shuffle(pos_list)
-    data['negative_files'] = numpy.random.shuffle(neg_list)
+    np.random.shuffle(pos_list)
+    np.random.shuffle(neg_list)
+    
+    data['positive_files'] = pos_list
+    data['negative_files'] = neg_list
+
     data['X_positive'] = []
     data['X_negative'] = []
 
